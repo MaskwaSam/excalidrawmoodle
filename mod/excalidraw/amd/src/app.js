@@ -145,7 +145,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 success: function(response) {
                     if (response.success) {
                         if (showNotification) {
-                            statusEl.text(M.util.get_string('saved', 'mod_excalidraw')).css('color', 'green');
+                            var savedText = config.strings && config.strings.saved ? config.strings.saved : 'Drawing saved successfully';
+                            statusEl.text(savedText).css('color', 'green');
                             setTimeout(function() {
                                 statusEl.text('');
                             }, 3000);
@@ -158,7 +159,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 },
                 error: function(xhr, status, error) {
                     if (showNotification) {
-                        statusEl.text('Error saving drawing').css('color', 'red');
+                        var errorText = config.strings && config.strings.saveerror ? config.strings.saveerror : 'Error saving drawing';
+                        statusEl.text(errorText).css('color', 'red');
                         console.error('Save error:', error);
                     }
                 }

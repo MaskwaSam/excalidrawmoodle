@@ -49,14 +49,18 @@ if ($submission && $submission->content) {
 }
 
 // Add JavaScript and CSS.
-$PAGE->requires->css('/mod/excalidraw/styles/excalidraw.css');
-$PAGE->requires->js('/mod/excalidraw/amd/src/excalidraw-bundle.js', true);
+$PAGE->requires->css(new moodle_url('/mod/excalidraw/styles/excalidraw.css'));
+$PAGE->requires->js(new moodle_url('/mod/excalidraw/amd/src/excalidraw-bundle.js'), true);
 $PAGE->requires->js_call_amd('mod_excalidraw/app', 'init', [
     'contextid' => $context->id,
     'cmid' => $cm->id,
     'excalidrawid' => $excalidraw->id,
     'drawingdata' => $drawingdata,
-    'sesskey' => sesskey()
+    'sesskey' => sesskey(),
+    'strings' => [
+        'saved' => get_string('saved', 'excalidraw'),
+        'saveerror' => get_string('saveerror', 'excalidraw')
+    ]
 ]);
 
 echo $OUTPUT->header();
