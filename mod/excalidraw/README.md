@@ -6,8 +6,10 @@ A Moodle activity module plugin that integrates the Excalidraw drawing tool into
 
 - **Interactive Drawing**: Create sketches, diagrams, and illustrations directly in Moodle
 - **Auto-Save**: Automatically saves your work every 30 seconds
+- **Dual Storage**: Saves to both database (fast loading) and file system (proper file management)
+- **File Management**: All drawings stored as .excalidraw files in Moodle File API
 - **Grading Support**: Teachers can grade student submissions
-- **File Storage**: All drawings are saved to Moodle's file system
+- **Privacy Compliant**: Full GDPR support with data export and deletion
 - **User-Friendly**: Simple, intuitive interface for both students and teachers
 
 ## Requirements

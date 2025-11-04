@@ -40,26 +40,49 @@ $submission = $DB->get_record('excalidraw_submissions', [
 ]);
 
 $now = time();
+$fs = get_file_storage();
 
 if ($submission) {
     // Update existing submission.
-    $submission->content = $content;
     $submission->timemodified = $now;
     $DB->update_record('excalidraw_submissions', $submission);
+
+    // Delete old file if it exists.
+    $oldfiles = $fs->get_area_files($context->id, 'mod_excalidraw', 'submissions', $submission->id, 'timemodified DESC', false);
+    foreach ($oldfiles as $oldfile) {
+        $oldfile->delete();
+    }
 } else {
     // Create new submission.
     $submission = new stdClass();
     $submission->excalidrawid = $excalidrawid;
     $submission->userid = $USER->id;
-    $submission->content = $content;
     $submission->timecreated = $now;
     $submission->timemodified = $now;
     $submission->id = $DB->insert_record('excalidraw_submissions', $submission);
 }
 
+// Save drawing data to file storage (for proper file management and exports).
+$fileinfo = [
+    'contextid' => $context->id,
+    'component' => 'mod_excalidraw',
+    'filearea' => 'submissions',
+    'itemid' => $submission->id,
+    'filepath' => '/',
+    'filename' => 'drawing_' . $USER->id . '_' . time() . '.excalidraw',
+    'userid' => $USER->id
+];
+
+$file = $fs->create_file_from_string($fileinfo, $content);
+
+// Also store JSON in database for quick loading (keep both methods).
+$submission->content = $content;
+$DB->update_record('excalidraw_submissions', $submission);
+
 header('Content-Type: application/json');
 echo json_encode([
     'success' => true,
     'submissionid' => $submission->id,
-    'timemodified' => $submission->timemodified
+    'timemodified' => $submission->timemodified,
+    'fileid' => $file->get_id()
 ]);

@@ -51,6 +51,21 @@ function excalidraw_delete_instance($id) {
         return false;
     }
 
+    $cm = get_coursemodule_from_instance('excalidraw', $id);
+    if ($cm) {
+        $context = context_module::instance($cm->id);
+        $fs = get_file_storage();
+
+        // Delete all submission files.
+        $submissions = $DB->get_records('excalidraw_submissions', ['excalidrawid' => $excalidraw->id]);
+        foreach ($submissions as $submission) {
+            $fs->delete_area_files($context->id, 'mod_excalidraw', 'submissions', $submission->id);
+        }
+
+        // Delete intro files.
+        $fs->delete_area_files($context->id, 'mod_excalidraw', 'intro');
+    }
+
     // Delete all submissions.
     $DB->delete_records('excalidraw_submissions', ['excalidrawid' => $excalidraw->id]);
 
@@ -214,4 +229,34 @@ function excalidraw_get_user_grades($excalidraw, $userid = 0) {
     }
 
     return $grades;
+}
+
+/**
+ * Get the latest file for a submission.
+ *
+ * @param int $contextid Context ID
+ * @param int $submissionid Submission ID
+ * @return stored_file|false The file or false if not found
+ */
+function excalidraw_get_submission_file($contextid, $submissionid) {
+    $fs = get_file_storage();
+    $files = $fs->get_area_files($contextid, 'mod_excalidraw', 'submissions', $submissionid, 'timemodified DESC', false);
+
+    if (!empty($files)) {
+        return reset($files); // Get the first (most recent) file.
+    }
+
+    return false;
+}
+
+/**
+ * Get all files for a submission.
+ *
+ * @param int $contextid Context ID
+ * @param int $submissionid Submission ID
+ * @return array Array of stored_file objects
+ */
+function excalidraw_get_submission_files($contextid, $submissionid) {
+    $fs = get_file_storage();
+    return $fs->get_area_files($contextid, 'mod_excalidraw', 'submissions', $submissionid, 'timemodified DESC', false);
 }
